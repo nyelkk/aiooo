@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aio - Buscador de TCCs</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Config for Custom Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        purple: {
+                            500: '#8e33d2', // Lighter purple for hovers
+                            600: '#7a19c6', // Main primary purple
+                            700: '#6310a5', // Darker purple
+                            900: '#3a0863', // Deep purple for contrast
+                        },
+                        vibrant: {
+                            green: '#15e36f', // The specific bright green
+                        },
+                        background: '#f4f4f6', // Light gray background
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 0 15px rgba(21, 227, 111, 0.5)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles & Animations */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: theme('colors.background');
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .hero-pattern {
+            background-color: #7a19c6;
+            background-image: radial-gradient(circle at center, #8e33d2 0%, #7a19c6 50%, #6310a5 100%);
+            position: relative;
+        }
+        
+        .hero-pattern::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M0 50 Q 25 25, 50 50 T 100 50" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2"/></svg>') repeat;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Line Clamp for text truncation */
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Smooth Hide/Show classes */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .view-hidden {
+            display: none !important;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c084f5; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #7a19c6; }
+    </style>
+</head>
+<body class="text-gray-800 flex flex-col min-h-screen">
+
+    <!-- STICKY HEADER (Appears on scroll or in inner pages) -->
+    <header id="sticky-header" class="fixed top-0 w-full z-50 bg-purple-600 transition-all duration-300 transform -translate-y-full shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex-shrink-0 cursor-pointer" onclick="navigate('home')">
+                <span class="text-3xl font-bold text-white tracking-tighter hover:opacity-80 transition-opacity">
+                    aio<span class="text-vibrant-green text-sm align-top ml-0.5"><i class="fas fa-leaf"></i></span>
+                </span>
+            </div>
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-2xl mx-8 hidden md:block">
+                <form onsubmit="handleSearch(event, 'sticky-search-input')" class="relative">
+                    <input type="text" id="sticky-search-input" placeholder="Pesquisar TCCs..." class="w-full bg-white text-gray-900 rounded-full py-2.5 pl-5 pr-10 focus:outline-none focus:ring-2 focus:ring-vibrant-green shadow-inner transition-all">
+                    <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <!-- Placeholder to balance flex -->
+            <div class="w-20"></div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow flex flex-col">
+        
+        <!-- ================= VIEW: HOME ================= -->
+        <div id="view-home" class="flex flex-col w-full fade-in">
+            
+            <!-- Hero Section -->
+            <section id="hero-section" class="hero-pattern min-h-[90vh] flex flex-col justify-center items-center px-4 relative overflow-hidden transition-all duration-500">
+                
+                <div class="z-10 flex flex-col md:flex-row items-center justify-center w-full max-w-4xl gap-6 md:gap-8">
+                    <!-- Logo -->
+                    <div class="cursor-pointer flex-shrink-0" onclick="navigate('home')">
+                        <span class="text-7xl font-bold text-white tracking-tighter hover:opacity-80 transition-opacity">
+                            aio<span class="text-vibrant-green text-3xl align-top ml-1"><i class="fas fa-leaf"></i></span>
+                        </span>
+                    </div>
+
+                    <!-- Search Form -->
+                    <form onsubmit="handleSearch(event, 'hero-search-input')" class="relative w-full max-w-2xl transform transition-transform hover:scale-[1.02] duration-300 flex-1">
+                        <input type="text" id="hero-search-input" placeholder="Basta Fera..." class="w-full text-lg md:text-xl text-gray-900 rounded-full py-4 pl-8 pr-14 focus:outline-none focus:ring-4 focus:ring-vibrant-green/50 shadow-xl">
+                        <button type="submit" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-purple-600 text-xl transition-colors">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </section>
+
+            <!-- Home Content Below Fold -->
+            <section id="home-content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
+                
+                <!-- Podcasts e Vídeos -->
+                <div class="mb-16">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-l-4 border-purple-600 pl-3">Podcasts e Vídeos</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Video Card 1 -->
+                        <div class="group cursor-pointer">
+                            <div class="relative rounded-2xl overflow-hidden mb-3 shadow-md">
+                                <img src="https://placehold.co/600x338/1e1e1e/white?text=Podcast+Debate" alt="Video thumbnail" class="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/20 transition-colors">
+                                    <div class="w-16 h-16 rounded-full border-2 border-vibrant-green flex items-center justify-center text-vibrant-green text-2xl group-hover:bg-vibrant-green group-hover:text-white transition-all">
+                                        <i class="fas fa-play ml-1"></i>
+                                    </div>
+                                </div>
+                                <span class="absolute bottom-2 right-2 bg-black/80 text-white text-xs font-semibold px-2 py-1 rounded">12:32</span>
+                            </div>
+                            <h4 class="text-md font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">Debatendo a leitura Entre Evas e Humanos: Uma abordagem da relação homem - Máquina...</h4>
+                            <p class="text-sm text-gray-500 mt-1">AiÓ Vídeos</p>
+                        </div>
+                        <!-- Video Card 2 -->
+                        <div class="group cursor-pointer">
+                            <div class="relative rounded-2xl overflow-hidden mb-3 shadow-md">
+                                <img src="https://placehold.co/600x338/1e1e1e/white?text=Podcast+Debate+2" alt="Video thumbnail" class="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/20 transition-colors">
+                                    <div class="w-16 h-16 rounded-full border-2 border-vibrant-green flex items-center justify-center text-vibrant-green text-2xl group-hover:bg-vibrant-green group-hover:text-white transition-all">
+                                        <i class="fas fa-play ml-1"></i>
+                                    </div>
+                                </div>
+                                <span class="absolute bottom-2 right-2 bg-black/80 text-white text-xs font-semibold px-2 py-1 rounded">15:10</span>
+                            </div>
+                            <h4 class="text-md font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">Debatendo a leitura Entre Evas e Humanos: Uma abordagem da relação homem - Máquina...</h4>
+                            <p class="text-sm text-gray-500 mt-1">AiÓ Vídeos</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Os mais bem avaliados -->
+                <div class="mb-16 relative">
+                    <div class="flex justify-between items-end mb-6">
+                        <h3 class="text-2xl font-semibold text-gray-800 border-l-4 border-vibrant-green pl-3 flex items-center">
+                            Os mais bem avaliados
+                            <i class="fas fa-certificate text-vibrant-green ml-2 text-xl relative -top-2" title="Selo de Qualidade"></i>
+                        </h3>
+                        <a href="#" class="text-sm font-semibold text-purple-600 hover:text-purple-800 uppercase tracking-wide"><i class="fas fa-eye mr-1"></i> Ver todos</a>
+                    </div>
+                    
+                    <div id="grid-top-rated" class="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-white p-6 rounded-3xl shadow-soft">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+
+                <!-- Adicionados Recentemente -->
+                <div class="mb-12">
+                    <div class="flex justify-between items-end mb-6">
+                        <h3 class="text-2xl font-semibold text-gray-800 border-l-4 border-gray-400 pl-3">Adicionados Recentemente</h3>
+                        <a href="#" class="text-sm font-semibold text-purple-600 hover:text-purple-800 uppercase tracking-wide"><i class="fas fa-eye mr-1"></i> Ver todos</a>
+                    </div>
+                    
+                    <div id="grid-recent" class="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-white p-6 rounded-3xl shadow-soft">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+
+                <div class="text-center mt-12 mb-8">
+                    <button onclick="document.getElementById('hero-search-input').focus(); window.scrollTo(0,0);" class="bg-vibrant-green hover:bg-green-500 text-white font-bold text-lg py-4 px-10 rounded-full shadow-glow transition-all transform hover:-translate-y-1">
+                        Pesquisar TCCs
+                    </button>
+                </div>
+
+            </section>
+        </div>
+
+        <!-- ================= VIEW: SEARCH RESULTS ================= -->
+        <div id="view-search" class="view-hidden flex-col w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 fade-in">
+            <h2 class="text-2xl md:text-3xl font-semibold text-gray-800 mb-8" id="search-title">Resultados de Pesquisa para: ""</h2>
+            
+            <div id="search-results-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+
+        <!-- ================= VIEW: 404 NOT FOUND ================= -->
+        <div id="view-404" class="view-hidden flex-col w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 fade-in">
+            <h2 class="text-2xl md:text-3xl font-semibold text-gray-800 mb-12 text-center" id="search-title-404">Resultados de Pesquisa para: ""</h2>
+            
+            <div class="flex flex-col items-center justify-center text-center mb-20 relative">
+                <!-- 404 Illustration placeholder -->
+                <div class="relative w-64 h-64 mb-6">
+                    <div class="absolute inset-0 bg-vibrant-green rounded-full opacity-20 transform scale-110"></div>
+                    <div class="text-[150px] font-black text-gray-300 leading-none tracking-tighter absolute inset-0 flex items-center justify-center">
+                        404
+                    </div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-purple-600 text-8xl z-10 opacity-90">
+                        <i class="fas fa-search-minus"></i>
+                    </div>
+                    <div class="absolute top-0 right-0 bg-vibrant-green text-white text-xs font-bold px-3 py-1 rounded shadow-lg transform rotate-12">
+                        EITA! NÃO ACHAMOS NADA :(
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-200 pt-12">
+                <h3 class="text-3xl font-bold text-purple-700 mb-8">Você pode ler:</h3>
+                
+                <div class="flex justify-between items-end mb-6">
+                    <h4 class="text-xl font-semibold text-gray-800 flex items-center">
+                        Os mais bem avaliados
+                        <i class="fas fa-certificate text-vibrant-green ml-2 text-lg relative -top-1"></i>
+                    </h4>
+                    <a href="#" class="text-sm font-semibold text-purple-600 hover:text-purple-800 uppercase tracking-wide"><i class="fas fa-eye mr-1"></i> Ver todos</a>
+                </div>
+                
+                <div id="grid-404-suggestions" class="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-white p-6 rounded-3xl shadow-soft">
+                    <!-- Filled by JS (reuses top rated) -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW: TCC DETAILS ================= -->
+        <div id="view-details" class="view-hidden flex-col w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 fade-in">
+            
+            <button onclick="navigate('home')" class="inline-flex items-center text-purple-600 hover:text-purple-800 font-semibold mb-8 transition-colors bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 w-max">
+                <i class="fas fa-chevron-left mr-2 border border-purple-200 rounded p-1"></i> Voltar
+            </button>
+
+            <div class="bg-white rounded-3xl shadow-soft overflow-hidden mb-8 border-l-8 border-purple-600 flex flex-col md:flex-row relative">
+                <!-- Cover Image -->
+                <div class="w-full md:w-1/3 lg:w-1/4 flex-shrink-0 p-6">
+                    <img id="detail-cover" src="" alt="Capa" class="w-full h-auto rounded-xl shadow-md object-cover aspect-[2/3]">
+                </div>
+                
+                <!-- Content Right -->
+                <div class="p-6 md:p-8 flex flex-col flex-1 relative">
+                    <!-- Decorator Line right -->
+                    <div class="absolute right-0 top-1/2 transform -translate-y-1/2 w-4 h-32 bg-purple-600 rounded-l-lg opacity-80 hidden md:block"></div>
+
+                    <div class="flex flex-wrap gap-2 mb-4" id="detail-tags">
+                        <!-- Tags injected by JS -->
+                    </div>
+
+                    <h1 id="detail-title" class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-tight">
+                        Título do TCC
+                    </h1>
+                    
+                    <div class="flex text-purple-600 text-lg mb-4" id="detail-rating">
+                        <!-- Stars -->
+                    </div>
+
+                    <p id="detail-author" class="text-lg text-gray-600 font-medium mb-8 pb-4 border-b border-gray-100">
+                        Autor
+                    </p>
+
+                    <div class="flex flex-wrap items-center gap-4 mt-auto">
+                        <button class="bg-vibrant-green hover:bg-green-500 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-colors flex items-center">
+                            <i class="far fa-file-pdf mr-2"></i> Ler PDF
+                        </button>
+                        <span class="text-sm text-gray-400 font-medium" id="detail-size"><i class="fas fa-download mr-1"></i> Tamanho: 673kB</span>
+                        <button class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-colors flex items-center ml-auto md:ml-0 mt-4 md:mt-0">
+                            <i class="fas fa-podcast mr-2"></i> Podcast
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Abstract -->
+            <div class="bg-gray-100/80 rounded-3xl p-8 mb-12 shadow-inner">
+                <p id="detail-abstract-full" class="text-gray-700 leading-relaxed text-lg whitespace-pre-line text-justify">
+                    Resumo completo...
+                </p>
+            </div>
+
+            <!-- Metadata List -->
+            <div class="bg-white rounded-3xl p-8 shadow-soft">
+                <ul class="space-y-6">
+                    <li class="flex flex-col md:flex-row md:items-center border-b border-gray-50 pb-4">
+                        <span class="w-48 font-semibold text-gray-500 uppercase tracking-wider text-sm mb-1 md:mb-0">Palavras-Chave</span>
+                        <span id="meta-keywords" class="text-gray-800 font-medium text-lg"></span>
+                    </li>
+                    <li class="flex flex-col md:flex-row md:items-center border-b border-gray-50 pb-4">
+                        <span class="w-48 font-semibold text-gray-500 uppercase tracking-wider text-sm mb-1 md:mb-0">Páginas</span>
+                        <span id="meta-pages" class="text-gray-800 font-medium text-lg"></span>
+                    </li>
+                    <li class="flex flex-col md:flex-row md:items-center border-b border-gray-50 pb-4">
+                        <span class="w-48 font-semibold text-gray-500 uppercase tracking-wider text-sm mb-1 md:mb-0">Ano</span>
+                        <span id="meta-year" class="text-gray-800 font-medium text-lg"></span>
+                    </li>
+                    <li class="flex flex-col md:flex-row md:items-center border-b border-gray-50 pb-4">
+                        <span class="w-48 font-semibold text-gray-500 uppercase tracking-wider text-sm mb-1 md:mb-0">Idioma</span>
+                        <span id="meta-language" class="text-gray-800 font-medium text-lg"></span>
+                    </li>
+                    <li class="flex flex-col md:flex-row md:items-center border-b border-gray-50 pb-4">
+                        <span class="w-48 font-semibold text-gray-500 uppercase tracking-wider text-sm mb-1 md:mb-0">URI</span>
+                        <a href="#" id="meta-uri" class="text-purple-600 hover:underline font-medium text-lg truncate"></a>
+                    </li>
+                    <li class="flex flex-col md:flex-row md:items-center">
+                        <span class="w-48 font-semibold text-gray-500 uppercase tracking-wider text-sm mb-1 md:mb-0">Orientador</span>
+                        <span id="meta-advisor" class="text-gray-800 font-medium text-lg"></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-purple-700 text-white pt-12 pb-8 border-t border-purple-800 shadow-[0_-10px_20px_rgba(0,0,0,0.1)] mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <!-- Logo & Links -->
+                <div class="mb-8 md:mb-0">
+                    <div class="text-4xl font-bold tracking-tighter mb-6">
+                        aio<span class="text-vibrant-green text-lg align-top ml-1"><i class="fas fa-leaf"></i></span>
+                    </div>
+                    <ul class="space-y-2 text-sm text-purple-200 font-medium">
+                        <li><a href="#" class="hover:text-white transition-colors">Saiba mais</a></li>
+                        <li class="pt-2"><a href="#" class="hover:text-white transition-colors">Termos de uso</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Política de privacidade</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Ajuda para leitores</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Fale conosco</a></li>
+                    </ul>
+                </div>
+
+                <!-- Right Side -->
+                <div class="flex flex-col items-end text-right">
+                    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="w-10 h-10 border border-purple-400 rounded flex items-center justify-center text-purple-200 hover:text-white hover:border-white transition-colors mb-8 group">
+                        <i class="fas fa-arrow-up transform group-hover:-translate-y-1 transition-transform"></i>
+                    </button>
+                    <p class="text-xs text-purple-300 max-w-[200px] leading-relaxed">
+                        Produzido pela<br>
+                        Faculdade de<br>
+                        Arquitetura e<br>
+                        Urbanismo e Design
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts (Firebase + Logic) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration & Initialization
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'aio-tcc-search-default';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            // Provide dummy config to prevent crashing if not in env, 
+            // but relying on the system to provide actual via env vars usually.
+            projectId: "demo-project"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Global State
+        let allTCCs = [];
+        let currentView = 'home';
+        
+        // Mock Data for Seeding
+        const mockTCCs = [
+            {
+                id: "tcc_01",
+                title: "Entre Evas e Humanos: Uma abordagem da relação homem - Máquina através da animação japonesa Neon Gênesis Evangelion",
+                author: "Danielly Amatte Lopes",
+                abstract: "Em um breve exame sobre as produções contemporâneas a cerca dos mais diversos assuntos, notadamente identificamos a dimensão do papel da imagem nesse final de século XX. Identificada por diversos...",
+                fullAbstract: "Em um breve exame sobre as produções contemporâneas a cerca dos mais diversos assuntos, notadamente identificamos a dimensão do papel da imagem nesse final de século XX. Identificada por diversos estudiosos como uma sociedade que construiu boa parte de seu universo simbólico através das informações fornecidas pelos meios de cultura de massa, sobretudo aqueles que lhe apresentam visualidades como dado, a sociedade ocidental contemporânea passa por um processo onde a imagem ganha uma importância cabal na sua maneira de interpretar e organizar conceitos e dogmas. O anime Neon Genesis Evangelion atua como um forte meio de reflexão desta relação simbiótica entre humanidade e tecnologia.",
+                coverImage: "https://placehold.co/400x600/0a0514/ffffff?text=EVA+Neon\nGenesis",
+                rating: 5,
+                tags: [
+                    { label: "Gráfico", color: "bg-purple-200 text-purple-800" },
+                    { label: "Mais lidos", color: "bg-orange-100 text-orange-700" },
+                    { label: "Contém Audiodescrição", color: "bg-green-100 text-green-800" }
+                ],
+                metadata: {
+                    keywords: "Animação Japonesa, Ciborgue, Evangelion, Design",
+                    pages: "142",
+                    year: "2024",
+                    language: "Português",
+                    uri: "https://repositorio.aio.br/handle/123456789/001",
+                    advisor: "Prof. Dr. Shinji Ikari"
+                }
+            },
+            {
+                id: "tcc_02",
+                title: "Design de Interfaces Hápticas para Realidade Virtual Acessível",
+                author: "Carlos E. Oliveira",
+                abstract: "Este trabalho explora a criação de padrões de design para interfaces táteis em ambientes de RV, visando a inclusão de usuários com deficiência visual...",
+                fullAbstract: "Este trabalho explora a criação de padrões de design para interfaces táteis em ambientes de RV, visando a inclusão de usuários com deficiência visual. Através de prototipagem rápida e testes com usuários, elaboramos um framework de vibrações e texturas simuladas que facilitam a navegação espacial sem dependência de feedback visual primário.",
+                coverImage: "https://placehold.co/400x600/1a4030/ffffff?text=Haptic\nVR",
+                rating: 4,
+                tags: [
+                    { label: "Digital", color: "bg-blue-100 text-blue-800" },
+                    { label: "Acessibilidade", color: "bg-green-100 text-green-800" }
+                ],
+                metadata: {
+                    keywords: "UX, VR, Acessibilidade, Háptica",
+                    pages: "98",
+                    year: "2023",
+                    language: "Português",
+                    uri: "https://repositorio.aio.br/handle/123456789/002",
+                    advisor: "Profa. Dra. Elena Silva"
+                }
+            },
+            {
+                id: "tcc_03",
+                title: "Tipografia Urbana: O resgate das letras vernaculares do centro histórico",
+                author: "Mariana Souza e Silva",
+                abstract: "Um mapeamento fotográfico e vetorial das placas comerciais pintadas à mão no centro da cidade, discutindo o apagamento cultural e propondo uma fonte digital...",
+                fullAbstract: "Um mapeamento fotográfico e vetorial das placas comerciais pintadas à mão no centro da cidade, discutindo o apagamento cultural e propondo uma fonte digital open-source inspirada nestes achados. O projeto culminou na criação da família tipográfica 'Centro Serif' e um livro-catálogo.",
+                coverImage: "https://placehold.co/400x600/802020/ffffff?text=Tipo\nUrbana",
+                rating: 5,
+                tags: [
+                    { label: "Tipografia", color: "bg-red-100 text-red-800" },
+                    { label: "Produto", color: "bg-yellow-100 text-yellow-800" }
+                ],
+                metadata: {
+                    keywords: "Tipografia, Vernacular, Design Gráfico, Memória",
+                    pages: "210",
+                    year: "2023",
+                    language: "Português",
+                    uri: "https://repositorio.aio.br/handle/123456789/003",
+                    advisor: "Prof. Ms. Roberto Alves"
+                }
+            },
+            {
+                id: "tcc_04",
+                title: "Embalagens Sustentáveis de Micélio: Desafios produtivos locais",
+                author: "Lucas Mendes",
+                abstract: "Análise da viabilidade técnica de produção de embalagens biodegradáveis utilizando micélio de fungos cultivados em resíduos da agroindústria local...",
+                fullAbstract: "Análise da viabilidade técnica de produção de embalagens biodegradáveis utilizando micélio de fungos cultivados em resíduos da agroindústria local. O estudo envolve experimentação de materiais, testes de resistência mecânica e proposta de um modelo de negócio circular para pequenos agricultores.",
+                coverImage: "https://placehold.co/400x600/7a7a50/ffffff?text=Micelio\nPack",
+                rating: 4,
+                tags: [
+                    { label: "Produto", color: "bg-yellow-100 text-yellow-800" },
+                    { label: "Sustentabilidade", color: "bg-vibrant-green text-white" }
+                ],
+                metadata: {
+                    keywords: "Design de Produto, Sustentabilidade, Micélio, Biomateriais",
+                    pages: "115",
+                    year: "2024",
+                    language: "Português",
+                    uri: "https://repositorio.aio.br/handle/123456789/004",
+                    advisor: "Prof. Dr. Antonio Carlos"
+                }
+            }
+        ];
+
+        // Ensure Auth before querying
+        async function authenticateUser() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                console.log("Authenticated as:", auth.currentUser.uid);
+            } catch (error) {
+                console.error("Auth error:", error);
+            }
+        }
+
+        // Fetch or Seed Data
+        async function loadTCCData() {
+            if (!auth.currentUser) return;
+
+            const tccCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'tccs');
+            
+            try {
+                const snapshot = await getDocs(tccCollectionRef);
+                
+                if (snapshot.empty) {
+                    console.log("No data found. Seeding mock data...");
+                    for (const tcc of mockTCCs) {
+                        // Use the tcc.id as the document ID
+                        const docRef = doc(tccCollectionRef, tcc.id);
+                        await setDoc(docRef, tcc);
+                    }
+                    allTCCs = [...mockTCCs];
+                } else {
+                    console.log("Data loaded from Firebase");
+                    allTCCs = snapshot.docs.map(doc => doc.data());
+                }
+                
+                // Once data is loaded, render Home
+                renderHome();
+                
+            } catch (error) {
+                console.error("Error loading data:", error);
+                // Fallback to memory if firebase rules fail locally in some environments
+                allTCCs = [...mockTCCs];
+                renderHome();
+            }
+        }
+
+        // Initialize App
+        async function init() {
+            await authenticateUser();
+            await loadTCCData();
+            setupScrollListener();
+        }
+
+        // Start initialization
+        init();
+
+        // --- DOM Elements ---
+        const viewHome = document.getElementById('view-home');
+        const viewSearch = document.getElementById('view-search');
+        const view404 = document.getElementById('view-404');
+        const viewDetails = document.getElementById('view-details');
+        const stickyHeader = document.getElementById('sticky-header');
+        
+        // --- Navigation & Routing ---
+        window.navigate = function(view, data = null) {
+            // Hide all
+            viewHome.classList.add('view-hidden');
+            viewSearch.classList.add('view-hidden');
+            view404.classList.add('view-hidden');
+            viewDetails.classList.add('view-hidden');
+            
+            window.scrollTo({top: 0, behavior: 'instant'});
+            currentView = view;
+            
+            updateHeaderState();
+
+            if (view === 'home') {
+                viewHome.classList.remove('view-hidden');
+                document.getElementById('hero-search-input').value = "";
+                document.getElementById('sticky-search-input').value = "";
+            } else if (view === 'search') {
+                viewSearch.classList.remove('view-hidden');
+                renderSearchResults(data);
+            } else if (view === '404') {
+                view404.classList.remove('view-hidden');
+                document.getElementById('search-title-404').innerText = `Resultados de Pesquisa para: "${data}"`;
+                renderGrid('grid-404-suggestions', allTCCs.slice(0, 2)); // Show top 2 as suggestions
+            } else if (view === 'details') {
+                viewDetails.classList.remove('view-hidden');
+                renderDetails(data);
+            }
+        };
+
+        // --- Search Logic ---
+        window.handleSearch = function(e, inputId) {
+            e.preventDefault();
+            const query = document.getElementById(inputId).value.trim().toLowerCase();
+            if (!query) return;
+
+            // Sync inputs
+            document.getElementById('hero-search-input').value = query;
+            document.getElementById('sticky-search-input').value = query;
+
+            // Search by title or author
+            const results = allTCCs.filter(tcc => 
+                tcc.title.toLowerCase().includes(query) || 
+                tcc.author.toLowerCase().includes(query)
+            );
+
+            if (results.length > 0) {
+                navigate('search', { query, results });
+            } else {
+                navigate('404', query);
+            }
+        };
+
+        // --- Header Scroll Logic ---
+        function setupScrollListener() {
+            window.addEventListener('scroll', updateHeaderState);
+            // Initial call
+            updateHeaderState();
+        }
+
+        function updateHeaderState() {
+            const scrollY = window.scrollY;
+            
+            if (currentView === 'home') {
+                // On home page, show sticky header only after scrolling past the hero
+                if (scrollY > 150) {
+                    stickyHeader.classList.remove('-translate-y-full');
+                } else {
+                    stickyHeader.classList.add('-translate-y-full');
+                }
+            } else {
+                // On other pages, always show sticky header
+                stickyHeader.classList.remove('-translate-y-full');
+            }
+        }
+
+        window.scrollToContent = function() {
+            const target = document.getElementById('home-content');
+            const offset = 80; // height of sticky header
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = target.getBoundingClientRect().top;
+            const elementPosition = elementRect - bodyRect;
+            const offsetPosition = elementPosition - offset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        };
+
+        // --- Render Functions ---
+
+        // Generates HTML string for a TCC Card
+        function generateTCCCardHTML(tcc) {
+            let starsHTML = '';
+            for(let i=0; i<5; i++) {
+                starsHTML += `<i class="fas fa-star ${i < tcc.rating ? 'text-purple-700' : 'text-gray-300'} text-xs"></i>`;
+            }
+
+            return `
+                <div class="bg-gray-50/50 hover:bg-white border border-gray-100 rounded-2xl flex flex-row overflow-hidden transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer group" onclick="navigate('details', '${tcc.id}')">
+                    <!-- Cover -->
+                    <div class="w-1/3 flex-shrink-0 bg-gray-200">
+                        <img src="${tcc.coverImage}" alt="Capa" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Info -->
+                    <div class="w-2/3 p-4 md:p-5 flex flex-col justify-between relative">
+                        <!-- Decorator line on hover -->
+                        <div class="absolute right-0 top-1/2 transform -translate-y-1/2 w-1 h-0 bg-vibrant-green transition-all duration-300 group-hover:h-12 rounded-l"></div>
+                        
+                        <div>
+                            <h4 class="text-md font-bold text-gray-900 leading-tight mb-1 group-hover:text-purple-600 transition-colors line-clamp-2">${tcc.title}</h4>
+                            <div class="flex mb-2 space-x-0.5">
+                                ${starsHTML}
+                            </div>
+                            <p class="text-xs text-purple-600 font-medium mb-2">${tcc.author}</p>
+                            <p class="text-xs text-gray-500 line-clamp-3 leading-relaxed hidden sm:-webkit-box">${tcc.abstract}</p>
+                        </div>
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            <button class="bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-semibold py-1.5 px-3 rounded flex items-center transition-colors">
+                                <i class="far fa-file-pdf mr-1"></i> Gráfico
+                            </button>
+                            <button class="bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-semibold py-1.5 px-3 rounded flex items-center transition-colors">
+                                <i class="fas fa-podcast mr-1"></i> Podcast
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render generic grid
+        function renderGrid(elementId, items) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = items.map(generateTCCCardHTML).join('');
+        }
+
+        // Render Home page content
+        function renderHome() {
+            // Duplicate mock data to fill grids if needed, normally would be separate queries
+            const topRated = allTCCs.filter(t => t.rating >= 4).slice(0, 4);
+            const recent = allTCCs.slice().reverse().slice(0, 4);
+
+            // If we only have 4 total from seed, we just show them in both to simulate fullness
+            renderGrid('grid-top-rated', topRated.length > 0 ? topRated : allTCCs);
+            renderGrid('grid-recent', recent.length > 0 ? recent : allTCCs);
+        }
+
+        // Render Search Results
+        function renderSearchResults(data) {
+            document.getElementById('search-title').innerText = `Resultados de Pesquisa para: "${data.query}"`;
+            renderGrid('search-results-grid', data.results);
+        }
+
+        // Render Detail View
+        function renderDetails(id) {
+            const tcc = allTCCs.find(t => t.id === id);
+            if (!tcc) {
+                navigate('404');
+                return;
+            }
+
+            document.getElementById('detail-cover').src = tcc.coverImage;
+            document.getElementById('detail-title').innerText = tcc.title;
+            document.getElementById('detail-author').innerText = tcc.author;
+            
+            // Rating
+            let starsHTML = '';
+            for(let i=0; i<5; i++) {
+                starsHTML += `<i class="fas fa-star ${i < tcc.rating ? 'text-purple-600' : 'text-gray-300'} mr-1"></i>`;
+            }
+            document.getElementById('detail-rating').innerHTML = starsHTML;
+
+            // Tags
+            document.getElementById('detail-tags').innerHTML = tcc.tags.map(tag => 
+                `<span class="${tag.color} text-xs font-bold px-3 py-1 rounded-md shadow-sm flex items-center">
+                    ${tag.label === 'Mais lidos' ? '<i class="fas fa-arrow-trend-up mr-1"></i>' : ''}
+                    ${tag.label === 'Contém Audiodescrição' ? '<i class="fas fa-volume-high mr-1"></i>' : ''}
+                    ${tag.label === 'Gráfico' ? '<i class="fas fa-image mr-1"></i>' : ''}
+                    ${tag.label === 'Produto' ? '<i class="fas fa-cube mr-1"></i>' : ''}
+                    ${tag.label}
+                </span>`
+            ).join('');
+
+            document.getElementById('detail-abstract-full').innerText = tcc.fullAbstract;
+            
+            // Meta
+            document.getElementById('meta-keywords').innerText = tcc.metadata.keywords;
+            document.getElementById('meta-pages').innerText = tcc.metadata.pages;
+            document.getElementById('meta-year').innerText = tcc.metadata.year;
+            document.getElementById('meta-language').innerText = tcc.metadata.language;
+            
+            const uriEl = document.getElementById('meta-uri');
+            uriEl.innerText = tcc.metadata.uri;
+            uriEl.href = tcc.metadata.uri;
+            
+            document.getElementById('meta-advisor').innerText = tcc.metadata.advisor;
+        }
+
+    </script>
+</body>
+</html>
