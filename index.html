@@ -87,7 +87,13 @@
 
             @media (max-width: 768px) {
                 #main-header.scrolled #header-search-container, #main-header.force-scrolled #header-search-container {
-                    width: 60%;
+                    width: min(52%, 320px);
+                    min-width: 0;
+                }
+
+                #header-search-container input {
+                    padding: 0.6rem 2.5rem 0.6rem 1rem;
+                    font-size: 0.95rem;
                 }
             }
 
@@ -323,7 +329,7 @@
                         4
                         <div class="inline-block relative mx-2">
                             <div class="w-32 h-32 border-[12px] border-[#4ade80] rounded-full"></div>
-                            <div class="absolute w-4 h-20 bg-gray-700 rotate-45 top-24 left-24 rounded-full"></div>
+                            <div class="absolute left-[103px] top-[103px] h-12 w-3 origin-top rotate-45 rounded-full bg-gray-700"></div>
                         </div>
                         4
                     </div>
@@ -349,7 +355,7 @@
 
                 <div class="bg-white rounded-2xl shadow-xl overflow-hidden relative">
                     <!-- Color bar side -->
-                    <div class="absolute right-0 top-10 bottom-10 w-4 bg-primary rounded-l-xl"></div>
+                    <div class="absolute right-0 top-10 bottom-10 hidden w-4 bg-primary rounded-l-xl md:block"></div>
                     
                     <div class="p-8 md:p-10 flex flex-col md:flex-row gap-8">
                         <!-- Left: Cover Image -->
@@ -378,13 +384,15 @@
                             <p id="detail-author" class="text-gray-500 font-medium mb-8">Autor</p>
                             
                             <!-- Action Buttons -->
-                            <div class="flex flex-wrap gap-4 mb-10">
-                                <button class="bg-[#4ade80] hover:bg-green-500 text-white font-bold py-2 px-6 rounded-md shadow flex items-center transition-colors">
-                                    <i class="fas fa-file-pdf mr-2"></i> Ler PDF
-                                </button>
-                                <span id="detail-size" class="flex items-center text-sm text-gray-500 mr-4">
-                                    <i class="fas fa-download mr-1"></i> Tamanho: 673kB
-                                </span>
+                            <div class="flex flex-col items-start gap-3 mb-10">
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+                                    <button class="bg-[#4ade80] hover:bg-green-500 text-white font-bold py-2 px-6 rounded-md shadow flex items-center transition-colors">
+                                        <i class="fas fa-file-pdf mr-2"></i> Ler PDF
+                                    </button>
+                                    <span id="detail-size" class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-download mr-1"></i> Tamanho: 673kB
+                                    </span>
+                                </div>
                                 <button class="bg-primary hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-md shadow flex items-center transition-colors">
                                     <i class="fas fa-podcast mr-2"></i> Podcast
                                 </button>
@@ -474,7 +482,7 @@
                     shortDescription: "Em um breve exame sobre as produções contemporâneas a cerca dos mais diversos assuntos, notadamente identificamos a dimensão do papel da imagem nesse final de século XX. Identificada por diversos...",
                     abstract: "Em um breve exame sobre as produções contemporâneas a cerca dos mais diversos assuntos, notadamente identificamos a dimensão do papel da imagem nesse final de século XX. Identificada por diversos estudiosos como uma sociedade que construiu boa parte de seu universo simbólico através das informações fornecidas pelos meios de cultura de massa, sobretudo aqueles que lhe apresentam visualidades como dado, a sociedade ocidental contemporânea passa por um processo onde a imagem ganha uma importância cabal na sua maneira de interpretar e organizar conceitos e dogmas.[...]",
                     rating: 5,
-                    coverImage: "https://placehold.co/400x600/1e1e1e/4ade80?text=EVA+Design",
+                    coverImage: "CAPAS/CAPA DANI.jpg",
                     tags: ["Gráfico", "Mais lidos", "Contém Audiodescrição"],
                     keywords: "Animação, Evangelion, Homem-Máquina, Semiótica",
                     pages: "124",
@@ -680,13 +688,14 @@
                 hideAllViews();
                 const viewSearch = document.getElementById('view-search');
                 viewSearch.classList.add('active');
+                document.getElementById('top-spacer').classList.add('compact');
                 
                 document.getElementById('main-header').classList.add('force-scrolled');
                 
                 document.getElementById('search-title').innerText = `Resultados de Pesquisa para: "${query}"`;
                 
                 // Ensure header is scrolled up
-                window.scrollTo({top: 100, behavior: 'smooth'});
+                window.scrollTo(0, 0);
 
                 // Filter data
                 const results = tccsDB.filter(tcc => 
