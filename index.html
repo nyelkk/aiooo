@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Aio - Buscador de TCCs</title>
+        <link rel="icon" href="logo/favicon.png" type="image/x-icon">
+        
+        <!-- Font Awesome for Icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="js/tailwind-config.js"></script>
+
+        <link rel="stylesheet" href="css/styles.css">
+    </head>
+    <body class="bg-bglight">
+
+        <!-- FIXED ANIMATED HEADER / HERO -->
+        <header id="main-header">
+            
+            <!-- Header Logo (only visible when scrolled) -->
+            <div id="header-logo" class="items-center cursor-pointer">
+                <img src="logo/logo-verde.png" alt="logo aio">
+            </div>
+
+            <!-- Search Bar -->
+            <div id="header-search-container" class="relative flex items-center justify-center w-full">
+                <!-- Hero logo (only visible in hero mode) -->
+                <img id="hero-logo" src="logo/logo-verde.png" alt="logo aio">
+                
+                <div class="relative w-full">
+                    <input type="text" id="searchInput" placeholder="Pesquisar TCCs (título ou autor)..."
+                        class="w-full py-3 md:py-4 px-6 rounded-full text-gray-700 shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-400 focus:ring-opacity-50 text-lg transition-all">
+                    <button id="search-button" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary p-2">
+                        <i class="fas fa-search text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- SPACER FOR SCROLL -->
+        <div id="top-spacer"></div>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            
+            <!-- ================= VIEW: HOME ================= -->
+            <section id="view-home" class="view-section active">
+                
+                <!-- Podcasts e Vídeos -->
+                <div class="mb-16">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6 border-b border-gray-200 pb-2">Podcasts e Vídeos</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Vídeo 1 -->
+                        <a href="#" class="bg-white rounded-xl shadow overflow-hidden group cursor-pointer block">
+                            <div class="video-container relative bg-gray-900 overflow-hidden">
+                                <img src="https://placehold.co/600x337/1e1e1e/7300e6?text=Podcast+Design+1" alt="Thumbnail" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="w-16 h-16 bg-black bg-opacity-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-[#4ade80]">
+                                        <i class="fas fa-play text-[#4ade80] text-xl ml-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-gray-800 line-clamp-2">Debatendo a leitura Entre Evas e Humanos: Uma abordagem da relação homem - Máquina através da animação...</h3>
+                                <div class="flex justify-between items-center mt-2 text-sm text-gray-500">
+                                    <span>AIO Vídeos</span>
+                                    <span>12:32</span>
+                                </div>
+                            </div>
+                        </a>
+                        <!-- Vídeo 2 -->
+                        <a href="#" class="bg-white rounded-xl shadow overflow-hidden group cursor-pointer block">
+                            <div class="video-container relative bg-gray-900 overflow-hidden">
+                                <img src="https://placehold.co/600x337/1e1e1e/7300e6?text=Podcast+Design+2" alt="Thumbnail" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="w-16 h-16 bg-black bg-opacity-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-[#4ade80]">
+                                        <i class="fas fa-play text-[#4ade80] text-xl ml-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-gray-800 line-clamp-2">A semiótica no audiovisual contemporâneo: Uma análise profunda das novas mídias</h3>
+                                <div class="flex justify-between items-center mt-2 text-sm text-gray-500">
+                                    <span>AIO Vídeos</span>
+                                    <span>15:10</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Os Mais Bem Avaliados -->
+                <div class="mb-16 relative">
+                    <!-- Highlight Icon Decorator -->
+        
+                    
+                    <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-2">
+                        <h2 class="text-2xl font-semibold text-gray-800">Os mais bem avaliados</h2>
+                        <a href="#grid-top-rated" class="text-primary font-semibold text-sm hover:underline"><i class="fas fa-eye mr-1"></i>VER TODOS</a>
+                    </div>
+                    <div id="grid-top-rated" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+
+                <!-- Adicionados Recentemente -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-2">
+                        <h2 class="text-2xl font-semibold text-gray-800">Adicionados Recentemente</h2>
+                        <a href="#grid-recent" class="text-primary font-semibold text-sm hover:underline"><i class="fas fa-eye mr-1"></i>VER TODOS</a>
+                    </div>
+                    <div id="grid-recent" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+                
+            </section>
+
+            <!-- ================= VIEW: SEARCH RESULTS ================= -->
+            <section id="view-search" class="view-section">
+                <h2 id="search-title" class="text-2xl font-semibold text-gray-800 mb-8 border-b border-gray-200 pb-2">Resultados de Pesquisa para: "..."</h2>
+                
+                <div id="search-results-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Preenchido via JS -->
+                </div>
+
+                <!-- Empty State / 404 -->
+                <div id="search-404" class="hidden flex flex-col items-center justify-center py-10">
+                    <div class="bg-[#4ade80] text-white font-bold py-1 px-4 rounded-full mb-4 text-sm">
+                        EITA! NÃO ACHAMOS NADA :(
+                    </div>
+                    <img src="content/404-ilustra.svg" alt="Ilustração de página não encontrada" class="search-empty-illustration mb-6">
+                    
+                    <div class="w-full mt-12 text-left">
+                        <h2 class="text-3xl font-bold text-primary mb-6">Você pode ler:</h2>
+                        <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-2">
+                            <h3 class="text-xl font-semibold text-gray-800">Os mais bem avaliados</h3>
+                            <a href="#grid-top-rated" class="text-primary font-semibold text-sm hover:underline"><i class="fas fa-eye mr-1"></i>VER TODOS</a>
+                        </div>
+                        <div id="search-suggestions-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Preenchido via JS (Top 4) -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= VIEW: TCC DETAIL ================= -->
+            <section id="view-detail" class="view-section">
+                <button id="back-home-button" class="mb-8 text-primary font-semibold hover:bg-purple-100 py-2 px-4 rounded-lg transition-colors inline-flex items-center bg-white shadow-sm border border-purple-100">
+                    <i class="fas fa-chevron-left mr-2"></i> Voltar
+                </button>
+
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden relative">
+                    <!-- Color bar side -->
+                    <div class="absolute right-0 top-10 bottom-10 hidden w-4 bg-primary rounded-l-xl md:block"></div>
+                    
+                    <div class="p-8 md:p-10 flex flex-col md:flex-row gap-8">
+                        <!-- Left: Cover Image -->
+                        <div class="w-full md:w-1/3 flex-shrink-0">
+                            <img id="detail-image" src="" alt="Capa TCC" class="tcc-cover w-full h-auto rounded-lg shadow-md">
+                        </div>
+                        
+                        <!-- Right: Content -->
+                        <div class="w-full md:w-2/3 flex flex-col pt-2">
+                            <!-- Tags -->
+                            <div id="detail-tags" class="flex flex-wrap gap-2 mb-4">
+                                <!-- Preenchido via JS -->
+                            </div>
+                            
+                            <!-- Title -->
+                            <h1 id="detail-title" class="text-2xl md:text-3xl font-bold text-gray-900 leading-tight mb-3">
+                                Título
+                            </h1>
+                            
+                            <!-- Rating -->
+                            <div id="detail-rating" class="text-primary text-lg mb-2">
+                                <!-- Estrelas JS -->
+                            </div>
+                            
+                            <!-- Author -->
+                            <p id="detail-author" class="text-gray-500 font-medium mb-8">Autor</p>
+                            
+                            <!-- Action Buttons -->
+                            <div class="flex flex-col items-start gap-3 mb-10">
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+                                    <a id="detail-pdf-link" href="#" class="bg-[#4ade80] hover:bg-green-500 text-white font-bold py-2 px-6 rounded-md shadow flex items-center transition-colors">
+                                        <i class="fas fa-file-pdf mr-2"></i> Ler PDF
+                                    </a>
+                                    <span id="detail-size" class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-download mr-1"></i> Tamanho: 673kB
+                                    </span>
+                                </div>
+                                <a id="detail-podcast-link" href="#" class="bg-primary hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-md shadow flex items-center transition-colors">
+                                    <i class="fas fa-podcast mr-2"></i> Podcast
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Abstract Block -->
+                <div class="bg-gray-100 rounded-xl p-8 mt-8 shadow-inner border border-gray-200">
+                    <p id="detail-abstract" class="text-gray-700 leading-relaxed text-justify">
+                        Resumo...
+                    </p>
+                </div>
+                
+                <!-- Metadata List -->
+                <div class="mt-12 mb-8 px-4">
+                    <ul class="space-y-6 text-gray-500">
+                        <li class="flex flex-col sm:flex-row border-b border-gray-200 pb-4">
+                            <span class="font-semibold w-40 flex-shrink-0 text-gray-700">Palavras-Chave</span>
+                            <span id="detail-meta-keywords"></span>
+                        </li>
+                        <li class="flex flex-col sm:flex-row border-b border-gray-200 pb-4">
+                            <span class="font-semibold w-40 flex-shrink-0 text-gray-700">Páginas</span>
+                            <span id="detail-meta-pages"></span>
+                        </li>
+                        <li class="flex flex-col sm:flex-row border-b border-gray-200 pb-4">
+                            <span class="font-semibold w-40 flex-shrink-0 text-gray-700">Ano</span>
+                            <span id="detail-meta-year"></span>
+                        </li>
+                        <li class="flex flex-col sm:flex-row border-b border-gray-200 pb-4">
+                            <span class="font-semibold w-40 flex-shrink-0 text-gray-700">Idioma</span>
+                            <span id="detail-meta-language"></span>
+                        </li>
+                        <li class="flex flex-col sm:flex-row border-b border-gray-200 pb-4">
+                            <span class="font-semibold w-40 flex-shrink-0 text-gray-700">URI</span>
+                            <a id="detail-meta-uri" href="#" class="text-primary hover:underline word-break break-all"></a>
+                        </li>
+                        <li class="flex flex-col sm:flex-row border-b border-gray-200 pb-4">
+                            <span class="font-semibold w-40 flex-shrink-0 text-gray-700">Orientador</span>
+                            <span id="detail-meta-advisor"></span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-[#5500aa] text-white py-12 px-6 md:px-12 mt-20 relative">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end">
+                <!-- Left side -->
+                <div>
+                    <img src="logo/logo-verde.png" alt="logo aio" class="h-12 w-auto mb-6">
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li><a href="#" class="hover:text-white transition-colors font-semibold">Saiba mais</a></li>
+                        <li class="pt-4"><a href="#" class="hover:text-white transition-colors">Termos de uso</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Política de privacidade</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Ajuda para leitores</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Fale conosco</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Right side -->
+                <div class="mt-8 md:mt-0 text-right w-full md:w-auto flex flex-col items-end">
+                    <button id="back-to-top-button" class="w-10 h-10 border border-white rounded-full flex items-center justify-center hover:bg-white hover:text-primary transition-colors mb-10">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                    <div class="text-xs text-gray-300 text-right leading-tight max-w-[200px]">
+                        Produzido pela<br>
+                        Faculdade de<br>
+                        Arquitetura e<br>
+                        Urbanismo e Design
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- JAVASCRIPT LOGIC & DATABASE -->
+        <script src="js/app.js"></script>
+    </body>
+    </html> 
