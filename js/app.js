@@ -311,13 +311,77 @@
                 document.getElementById('searchInput').addEventListener('keydown', handleSearch);
                 document.getElementById('search-button').addEventListener('click', executeSearch);
                 document.getElementById('back-home-button').addEventListener('click', goHome);
+                document.getElementById('theme-toggle').addEventListener('click', () => {
+                    setDarkMode(!document.body.classList.contains('dark-mode'));
+                });
                 document.getElementById('back-to-top-button').addEventListener('click', () => {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
             }
 
+            function setDarkMode(enabled, persist = true) {
+                const button = document.getElementById('theme-toggle');
+                const icon = document.getElementById('theme-toggle-icon');
+                const label = document.getElementById('theme-toggle-label');
+
+                document.body.classList.toggle('dark-mode', enabled);
+                button.setAttribute('aria-pressed', String(enabled));
+                button.setAttribute('aria-label', enabled ? 'Ativar modo claro' : 'Ativar modo escuro');
+                icon.className = enabled ? 'fas fa-sun' : 'fas fa-moon';
+                label.textContent = enabled ? 'Modo claro' : 'Modo escuro';
+
+                if (persist) {
+                    try {
+                        localStorage.setItem('aio-theme', enabled ? 'dark' : 'light');
+                    } catch (error) {
+                        console.error('Não foi possível salvar a preferência de tema:', error);
+                    }
+                }
+            }
+
+            function initializeTheme() {
+                let darkModeEnabled = false;
+                try {
+                    darkModeEnabled = localStorage.getItem('aio-theme') === 'dark';
+                } catch (error) {
+                    console.error('Não foi possível carregar a preferência de tema:', error);
+                }
+
+                setDarkMode(darkModeEnabled, false);
+            }
+
+            function startIntro() {
+                const overlay = document.getElementById('intro-overlay');
+                const video = document.getElementById('intro-video');
+                const skipButton = document.getElementById('skip-intro');
+                let finished = false;
+
+                function finishIntro() {
+                    if (finished) return;
+                    finished = true;
+                    video.pause();
+                    overlay.classList.add('is-hidden');
+                    overlay.setAttribute('aria-hidden', 'true');
+                }
+
+                skipButton.addEventListener('click', finishIntro);
+                video.addEventListener('ended', finishIntro, { once: true });
+                video.addEventListener('error', () => {
+                    console.error('Não foi possível carregar o vídeo de abertura.');
+                    finishIntro();
+                }, { once: true });
+
+                video.play().catch(error => {
+                    if (error.name !== 'AbortError') {
+                        console.error('Não foi possível reproduzir o vídeo de abertura:', error);
+                    }
+                    finishIntro();
+                });
+            }
+
             // --- 5. INICIALIZAÇÃO ---
             function initApp() {
+                initializeTheme();
                 setupEventListeners();
 
                 // Preencher Home: Top Rated
@@ -329,6 +393,7 @@
                 document.getElementById('grid-recent').innerHTML = recents.map(createCardHTML).join('');
 
                 handleUrlChange();
+                startIntro();
             }
 
             // Run on load
